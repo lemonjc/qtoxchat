@@ -1,0 +1,90 @@
+{
+  "version": 8,
+  "include": [
+    "CMakePresets.json"
+  ],
+  "configurePresets": [
+    {
+      "name": "windows-vs2022",
+      "displayName": "Windows VS2022",
+      "description": "Use the Visual Studio 2022 generator on Windows.",
+      "inherits": "windows-vs2022-base",
+      "environment": {
+        "VCPKG_ROOT": "C:/path/to/vcpkg",
+        "QT_ROOT": "C:/path/to/Qt/6.x.x/msvc2022_64"
+      },
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+        "CMAKE_PREFIX_PATH": "$env{QT_ROOT}"
+      }
+    },
+    {
+      "name": "windows-default",
+      "displayName": "Windows Default",
+      "description": "Let CMake auto-detect the default Visual Studio generator on this machine.",
+      "inherits": "windows-base",
+      "environment": {
+        "VCPKG_ROOT": "C:/path/to/vcpkg",
+        "QT_ROOT": "C:/path/to/Qt/6.x.x/msvc2022_64"
+      },
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+        "CMAKE_PREFIX_PATH": "$env{QT_ROOT}"
+      }
+    },
+    {
+      "name": "linux-default",
+      "displayName": "Linux Default",
+      "description": "Use the default Linux generator and local toolchain paths.",
+      "inherits": "linux-base",
+      "environment": {
+        "VCPKG_ROOT": "/path/to/vcpkg",
+        "QT_ROOT": "/path/to/Qt/6.x.x/gcc_64"
+      },
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+        "CMAKE_PREFIX_PATH": "$env{QT_ROOT}"
+      }
+    },
+    {
+      "name": "macos-default",
+      "displayName": "macOS Default",
+      "description": "Use the default macOS generator and local toolchain paths.",
+      "inherits": "macos-base",
+      "environment": {
+        "VCPKG_ROOT": "/path/to/vcpkg",
+        "QT_ROOT": "/path/to/Qt/6.x.x/macos"
+      },
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+        "CMAKE_PREFIX_PATH": "$env{QT_ROOT}"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "build-windows-vs2022",
+      "displayName": "Build Windows VS2022",
+      "description": "Build using the windows-vs2022 configure preset.",
+      "configurePreset": "windows-vs2022"
+    },
+    {
+      "name": "build-windows-default",
+      "displayName": "Build Windows Default",
+      "description": "Build using the windows-default configure preset.",
+      "configurePreset": "windows-default"
+    },
+    {
+      "name": "build-linux-default",
+      "displayName": "Build Linux Default",
+      "description": "Build using the linux-default configure preset.",
+      "configurePreset": "linux-default"
+    },
+    {
+      "name": "build-macos-default",
+      "displayName": "Build macOS Default",
+      "description": "Build using the macos-default configure preset.",
+      "configurePreset": "macos-default"
+    }
+  ]
+}
