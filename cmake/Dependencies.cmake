@@ -1,13 +1,25 @@
 find_package(OpenSSL REQUIRED)
-
-if(MSVC)
-    find_package(unofficial-sodium CONFIG REQUIRED)
-else()
-    find_package(libsodium CONFIG REQUIRED)
-endif()
-
+find_package(unofficial-sodium CONFIG REQUIRED)
 find_package(Opus CONFIG REQUIRED)
 find_package(unofficial-libvpx CONFIG REQUIRED)
+if (NOT $VPX_FOUND)
+  find_path(VPX_INCLUDE_DIR NAMES vpx/vpx_codec.h)
+  find_library(VPX_LIBRARY NAMES vpx vpxmd)
+  if (VPX_INCLUDE_DIR AND VPX_LIBRARY)
+    message(STATUS "Found libvpx: ${VPX_LIBRARY}")
+    message(STATUS "  Include dir: ${VPX_INCLUDE_DIR}")
+    if (NOT TARGET libvpx::libvpx)
+      add_library(libvpx::libvpx UNKNOWN IMPORTED)
+      set_target_properties(libvpx::libvpx PROPERTIES
+        IMPORTED_LOCATION "${VPX_LIBRARY}"
+        INTERFACE_INCLUDE_DIRECTORIES "${VPX_INCLUDE_DIR}"
+      )
+    endif()
+    set(VPX_FOUND TRUE)
+  else()
+    message(FATAL_ERROR "libvpx not found.")
+  endif()
+endif()
 find_package(CURL CONFIG REQUIRED)
 find_package(SQLiteCpp CONFIG REQUIRED)
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
