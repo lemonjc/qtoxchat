@@ -11,17 +11,9 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Widgets)
-find_package(CURL CONFIG REQUIRED)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-qt_add_executable(qtoxchat
-    src/main.cpp
-)
+include(Dependencies)
+include(Toxcore)
 
-target_link_libraries(qtoxchat
-    PRIVATE
-        Qt6::Widgets
-        CURL::libcurl
-)
-
-install(TARGETS qtoxchat)
+add_subdirectory(src)

@@ -3,6 +3,17 @@
   "version-string": "0.1.0",
   "builtin-baseline": "81e3c888ef717a026eb57bb2f3cb0dbd30246271",
   "dependencies": [
-    "curl"
+    "curl",
+    "libsodium",
+    "libvpx",
+    "openssl",
+    "opus",
+    "pthreads",
+    {
+      "name": "sqlitecpp",
+      "features": [
+        "sqlcipher"
+      ]
+    }
   ]
 }
