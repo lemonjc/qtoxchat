@@ -13,7 +13,20 @@ set(CMAKE_AUTORCC ON)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
+include(ConfigureClangd)
 include(Dependencies)
 include(Toxcore)
 
-add_subdirectory(src)
+
+
+qt_add_executable(${PROJECT_NAME}
+    src/main.cpp
+)
+
+target_link_libraries(${PROJECT_NAME}
+    PRIVATE
+        Qt6::Widgets
+        CURL::libcurl
+)
+
+install(TARGETS ${PROJECT_NAME})

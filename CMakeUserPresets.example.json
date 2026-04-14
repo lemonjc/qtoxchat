@@ -33,6 +33,20 @@
       }
     },
     {
+      "name": "linux-clang",
+      "displayName": "Linux Clang",
+      "description": "Use the Ninja generator and local toolchain paths.",
+      "inherits": "linux-ninja",
+      "environment": {
+        "VCPKG_ROOT": "/path/to/vcpkg"
+      },
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++"
+      }
+    },
+    {
       "name": "linux-default",
       "displayName": "Linux Default",
       "description": "Use the default Linux generator and local toolchain paths.",

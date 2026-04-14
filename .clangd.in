@@ -1,0 +1,2 @@
+CompileFlags:
+  CompilationDatabase: @CLANGD_DB_DIR@
