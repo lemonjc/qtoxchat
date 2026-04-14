@@ -87,6 +87,12 @@
       "configurePreset": "windows-default"
     },
     {
+      "name": "build-linux-clang",
+      "displayName": "Build Linux Clang",
+      "description": "Build using the linux-clang configure preset.",
+      "configurePreset": "linux-clang"
+    },
+    {
       "name": "build-linux-default",
       "displayName": "Build Linux Default",
       "description": "Build using the linux-default configure preset.",

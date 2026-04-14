@@ -40,6 +40,7 @@ cp CMakeUserPresets.example.json CMakeUserPresets.json
 
 - `windows-vs2022`
 - `windows-default`
+- `linux-clang`
 - `linux-default`
 - `macos-default`
 
@@ -47,6 +48,7 @@ cp CMakeUserPresets.example.json CMakeUserPresets.json
 
 - `build-windows-vs2022`
 - `build-windows-default`
+- `build-linux-clang`
 - `build-linux-default`
 - `build-macos-default`
 
