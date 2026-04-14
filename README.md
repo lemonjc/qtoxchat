@@ -117,9 +117,3 @@ Build:
 ```bash
 cmake --build --preset build-macos-default
 ```
-
-## Notes
-
-- `vcpkg.json` enables manifest mode and currently installs `curl`.
-- `CMakeUserPresets.json` is intentionally ignored by Git because it contains machine-specific paths.
-- If Qt runtime DLLs are not on `PATH`, launching the executable directly may fail outside an IDE or a prepared shell.

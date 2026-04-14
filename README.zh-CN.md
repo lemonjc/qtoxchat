@@ -117,9 +117,3 @@ cmake --preset macos-default
 ```bash
 cmake --build --preset build-macos-default
 ```
-
-## 说明
-
-- `vcpkg.json` 启用了 manifest 模式，目前包含 `curl` 依赖。
-- `CMakeUserPresets.json` 会被 Git 忽略，因为其中包含机器相关的本地路径。
-- 如果 Qt 的运行时动态库没有加入 `PATH`，那么在 IDE 或已准备好的终端之外直接启动程序时，可能会因为缺少 Qt 运行库而失败。
