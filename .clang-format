@@ -6,3 +6,6 @@ UseTab: Never
 ContinuationIndentWidth: 4
 
 AllowShortIfStatementsOnASingleLine: Never
+
+IndentAccessModifiers: false
+AccessModifierOffset: -4

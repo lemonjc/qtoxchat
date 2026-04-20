@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.30)
+﻿cmake_minimum_required(VERSION 3.30)
 
 project(qtoxchat VERSION 0.1.0 LANGUAGES CXX)
 
@@ -18,15 +18,31 @@ include(Dependencies)
 include(Toxcore)
 
 
+set(CORE_INCLUDE_FILES 
+    ${CMAKE_SOURCE_DIR}/include/core/toxcore_wrapper.h
+)
+set(CORE_SOURCE_FILES
+    ${CMAKE_SOURCE_DIR}/src/core/toxcore_wrapper.cpp
+)
 
 qt_add_executable(${PROJECT_NAME}
     src/main.cpp
+
+    ${CORE_INCLUDE_FILES}
+    ${CORE_SOURCE_FILES}
+)
+
+target_include_directories(${PROJECT_NAME} PRIVATE 
+    ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}/third_party/c-toxcore
 )
 
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
         Qt6::Widgets
         CURL::libcurl
+        
+        toxcore_shared
 )
 
 install(TARGETS ${PROJECT_NAME})
