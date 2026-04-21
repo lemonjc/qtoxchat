@@ -300,4 +300,34 @@ void ToxCoreWrapper::SetOnFriendConnectionStatus(FriendConnectionStatusCb cb) {
     onFriendConnectionStatus_ = std::move(cb);
     RefreshCallbacks_();
 }
+
+// ==================== Message Management ====================
+uint32_t ToxCoreWrapper::SendFriendMessage(uint32_t friend_number,
+                                           const std::string& message,
+                                           TOX_MESSAGE_TYPE type) {
+    if (!tox_) {
+        throw std::logic_error("Tox instance is null");
+    }
+
+    if (message.empty()) {
+        throw std::invalid_argument("Message cannot be empty");
+    }
+
+    if (message.size() > TOX_MAX_MESSAGE_LENGTH) {
+        throw std::invalid_argument("Message exceeds maximum length");
+    }
+
+    TOX_ERR_FRIEND_SEND_MESSAGE err = TOX_ERR_FRIEND_SEND_MESSAGE_OK;
+
+    const uint32_t message_id = tox_friend_send_message(
+        tox_, friend_number, type,
+        reinterpret_cast<const uint8_t*>(message.data()), message.size(), &err);
+
+    if (err != TOX_ERR_FRIEND_SEND_MESSAGE_OK) {
+        throw std::runtime_error("tox_friend_send_message failed, err=" +
+                                 std::to_string(static_cast<int>(err)));
+    }
+
+    return message_id;
+}
 }  // namespace ToxCore

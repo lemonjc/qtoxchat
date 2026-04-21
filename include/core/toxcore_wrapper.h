@@ -11,9 +11,31 @@
 namespace ToxCore {
 // ==================== Callback Type Definitions ====================
 
-// Firend-related callback type definitions
+// Friend-related callback type definitions
+using FriendRequestCb = std::function<void(const std::string& public_key_hex,
+                                           const std::string& message)>;
 using FriendConnectionStatusCb =
     std::function<void(uint32_t friend_number, TOX_CONNECTION status)>;
+using FriendMessageCb = std::function<void(
+    uint32_t friend_number, TOX_MESSAGE_TYPE type, const std::string& message)>;
+
+// File transfer-related callback type definitions
+using FileReciveCb =
+    std::function<void(uint32_t friend_number, uint32_t file_number,
+                       const std::string& filename, uint64_t filesize)>;
+using FileRecvControlCb = std::function<void(
+    uint32_t friend_number, uint32_t file_number, TOX_FILE_CONTROL control)>;
+using FileChunkRequestCb =
+    std::function<void(uint32_t friend_number, uint32_t file_number,
+                       uint64_t position, uint64_t length)>;
+using FileChunkRecvCb =
+    std::function<void(uint32_t friend_number, uint32_t file_number,
+                       uint64_t position, const std::vector<uint8_t>& data)>;
+
+// Conference-related callback type definitions
+using ConferenceInviteCb =
+    std::function<void(uint32_t friend_number, TOX_CONFERENCE_TYPE type,
+                       const std::vector<uint8_t>& cookie)>;
 
 /**
  * @brief Encodes a byte buffer as an uppercase hexadecimal string.
@@ -141,6 +163,21 @@ public:
      */
     void SetOnFriendConnectionStatus(FriendConnectionStatusCb cb);
 
+    // ==================== Message Management ====================
+
+    /**
+     * @brief Send a message to a friend
+     * @param friend_number Friend number
+     * @param message Message content to send
+     * @param type Message type (normal, action, etc.)
+     * @return Message ID (for tracking), returns 0 on failure
+     */
+    uint32_t SendFriendMessage(uint32_t friend_number,
+                               const std::string& message,
+                               TOX_MESSAGE_TYPE type = TOX_MESSAGE_TYPE_NORMAL);
+
+    void SetOnFriendMessage(FriendMessageCb cb);
+
 private:
     /**
      * @brief Initialize ToxAV (audio and video calling module)\n
@@ -162,6 +199,7 @@ private:
 private:
     // ==================== Callback Function Storage ====================
     // friend-related callbacks
+
     FriendConnectionStatusCb onFriendConnectionStatus_{nullptr};
 
 private:
