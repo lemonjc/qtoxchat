@@ -4,10 +4,25 @@
 #include <toxcore/tox.h>
 
 #include <cstdint>
+#include <functional>
 #include <string>
 #include <vector>
 
 namespace ToxCore {
+// ==================== Callback Type Definitions ====================
+
+// Firend-related callback type definitions
+using FriendConnectionStatusCb =
+    std::function<void(uint32_t friend_number, TOX_CONNECTION status)>;
+
+/**
+ * @brief Encodes a byte buffer as an uppercase hexadecimal string.
+ * @param data Pointer to the input byte buffer; the first 'length' bytes are
+ * encoded.
+ * @param length Number of bytes to encode from data.
+ * @return A std::string containing uppercase hexadecimal characters (two
+ * characters per byte). Returns an empty string if length is zero.
+ */
 std::string EncodeHexUpper(const uint8_t* data, size_t length);
 
 class ToxCoreWrapper {
@@ -94,6 +109,38 @@ public:
      */
     uint32_t AddFriendNoRequest(const std::string& public_key_hex);
 
+    /**
+     * @brief Delete a friend
+     * @param friend_number Friend number (index in friend list)
+     */
+    void DeleteFriend(uint32_t friend_number);
+
+    /**
+     * @brief Get friend list
+     * @return List of all friends' IDs
+     */
+    std::vector<uint32_t> GetFriendList() const;
+
+    /**
+     * @brief Check if friend exists
+     * @param friend_number Friend number (index in friend list)
+     * @return True if the friend exists, false otherwise
+     */
+    bool FriendExists(uint32_t friend_number) const;
+
+    /**
+     * @brief Get the connection status of a friend
+     * @param friend_number Friend number (index in friend list)
+     * @return Connection status of the friend
+     */
+    TOX_CONNECTION GetFriendConnectionStatus(uint32_t friend_number) const;
+
+    /**
+     * @brief Set callback for friend connection status changes
+     * @param cb Callback function to handle friend connection status changes
+     */
+    void SetOnFriendConnectionStatus(FriendConnectionStatusCb cb);
+
 private:
     /**
      * @brief Initialize ToxAV (audio and video calling module)\n
@@ -111,6 +158,11 @@ private:
      * proper binding of the callback.
      */
     void RefreshCallbacks_();
+
+private:
+    // ==================== Callback Function Storage ====================
+    // friend-related callbacks
+    FriendConnectionStatusCb onFriendConnectionStatus_{nullptr};
 
 private:
     Tox* tox_{nullptr};

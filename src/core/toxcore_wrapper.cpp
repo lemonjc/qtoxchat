@@ -47,6 +47,18 @@ std::string EncodeHexUpper(const uint8_t* data, size_t length) {
     return result;
 }
 
+void ToxCoreWrapper::InitAv_() {
+    TOXAV_ERR_NEW err = TOXAV_ERR_NEW_OK;
+    av_ = toxav_new(tox_, &err);
+    if (!av_ || err != TOXAV_ERR_NEW_OK) {
+        throw std::runtime_error("toxav_new failed");
+    }
+    RefreshCallbacks_();
+}
+
+void ToxCoreWrapper::RefreshCallbacks_() {}
+
+// ==================== Lifecycle Management ====================
 ToxCoreWrapper::ToxCoreWrapper() {
     Tox_Options* options = tox_options_new(nullptr);
 
@@ -132,17 +144,7 @@ ToxCoreWrapper::~ToxCoreWrapper() {
     }
 }
 
-void ToxCoreWrapper::InitAv_() {
-    TOXAV_ERR_NEW err = TOXAV_ERR_NEW_OK;
-    av_ = toxav_new(tox_, &err);
-    if (!av_ || err != TOXAV_ERR_NEW_OK) {
-        throw std::runtime_error("toxav_new failed");
-    }
-    RefreshCallbacks_();
-}
-
-void ToxCoreWrapper::RefreshCallbacks_() {}
-
+// ==================== Core Loop Management ====================
 void ToxCoreWrapper::Iterate() {
     if (!tox_) {
         return;
@@ -164,6 +166,7 @@ uint32_t ToxCoreWrapper::IterationIntervalMs() const {
     return std::min(coreMs, avMs);
 }
 
+// ==================== Self Information Management ====================
 std::vector<uint8_t> ToxCoreWrapper::GetSavedata() const {
     if (!tox_) {
         throw std::logic_error("Tox instance is null");
@@ -190,6 +193,7 @@ std::string ToxCoreWrapper::GetSelfAddressHex() const {
     return EncodeHexUpper(address.data(), address.size());
 }
 
+// ==================== Friend Management ====================
 uint32_t ToxCoreWrapper::AddFriend(const std::string& tox_id_hex,
                                    const std::string& message) {
     if (!tox_) {
@@ -208,7 +212,7 @@ uint32_t ToxCoreWrapper::AddFriend(const std::string& tox_id_hex,
     const auto address = DecodeHexFixed<TOX_ADDRESS_SIZE>(tox_id_hex);
 
     TOX_ERR_FRIEND_ADD err = TOX_ERR_FRIEND_ADD_OK;
-    const uint32_t friendNum = tox_friend_add(
+    const uint32_t friend_num = tox_friend_add(
         tox_, address.data(), reinterpret_cast<const uint8_t*>(message.data()),
         message.size(), &err);
 
@@ -217,6 +221,83 @@ uint32_t ToxCoreWrapper::AddFriend(const std::string& tox_id_hex,
                                  std::to_string(static_cast<int>(err)));
     }
 
-    return friendNum;
+    return friend_num;
+}
+uint32_t ToxCoreWrapper::AddFriendNoRequest(const std::string& public_key_hex) {
+    if (!tox_) {
+        throw std::logic_error("Tox instance is null");
+    }
+
+    const auto public_key = DecodeHexFixed<TOX_PUBLIC_KEY_SIZE>(public_key_hex);
+
+    TOX_ERR_FRIEND_ADD err = TOX_ERR_FRIEND_ADD_OK;
+    const uint32_t friend_num =
+        tox_friend_add_norequest(tox_, public_key.data(), &err);
+
+    if (err != TOX_ERR_FRIEND_ADD_OK) {
+        throw std::runtime_error("tox_friend_add_norequest failed, err=" +
+                                 std::to_string(static_cast<int>(err)));
+    }
+
+    return friend_num;
+}
+
+void ToxCoreWrapper::DeleteFriend(uint32_t friend_number) {
+    if (!tox_) {
+        throw std::logic_error("Tox instance is null");
+    }
+    TOX_ERR_FRIEND_DELETE err{};
+    bool ok = tox_friend_delete(tox_, friend_number, &err);
+    if (!ok) {
+        throw std::runtime_error("tox_friend_delete failed, err=" +
+                                 std::to_string(static_cast<int>(err)));
+    }
+}
+
+std::vector<uint32_t> ToxCoreWrapper::GetFriendList() const {
+    if (!tox_) {
+        throw std::logic_error("Tox instance is null");
+    }
+
+    const size_t friend_count = tox_self_get_friend_list_size(tox_);
+    std::vector<uint32_t> friend_list(friend_count);
+
+    if (friend_count > 0) {
+        tox_self_get_friend_list(tox_, friend_list.data());
+    }
+
+    return friend_list;
+}
+
+bool ToxCoreWrapper::FriendExists(uint32_t friend_number) const {
+    if (!tox_) {
+        throw std::logic_error("Tox instance is null");
+    }
+
+    return tox_friend_exists(tox_, friend_number);
+}
+
+TOX_CONNECTION ToxCoreWrapper::GetFriendConnectionStatus(
+    uint32_t friend_number) const {
+    if (!tox_) {
+        throw std::logic_error("Tox instance is null");
+    }
+
+    TOX_ERR_FRIEND_QUERY err = TOX_ERR_FRIEND_QUERY_OK;
+    const TOX_CONNECTION status =
+        tox_friend_get_connection_status(tox_, friend_number, &err);
+
+    if (err != TOX_ERR_FRIEND_QUERY_OK) {
+        throw std::runtime_error(
+            "tox_friend_get_connection_status failed, err=" +
+            std::to_string(static_cast<int>(err)));
+    }
+
+    return status;
+}
+
+void ToxCoreWrapper::SetOnFriendConnectionStatus(FriendConnectionStatusCb cb) {
+    onFriendConnectionStatus_ = std::move(cb);
+    RefreshCallbacks_();
 }
 }  // namespace ToxCore
