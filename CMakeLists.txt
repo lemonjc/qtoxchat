@@ -6,6 +6,10 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+if(MSVC)
+    add_compile_options(/utf-8)
+endif()
+
 # Keep Qt-related autogen enabled so adding Qt targets later stays simple.
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)

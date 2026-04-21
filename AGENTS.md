@@ -30,7 +30,7 @@ On Linux or macOS, use `linux-default` or `macos-default` with the matching `bui
 
 ## Coding Style & Naming Conventions
 
-Use C++20 and follow the Google C++ Style Guide for naming, formatting, and header/source organization. Prefer 4-space indentation, keep files ASCII unless the file already uses Unicode, use `PascalCase` for types, `camelCase` for functions and variables, and `kPascalCase` for constants. Keep CMake declarative and minimal; add new targets and dependencies in `CMakeLists.txt` rather than hardcoding paths in source files.
+Use C++20 and follow the Google C++ Style Guide for naming, formatting, and header/source organization. Prefer 4-space indentation. Store source files, headers, CMake files, and Qt project files in UTF-8 without BOM; use non-ASCII text only when it is required for user-visible strings, translations, or test data. Use `PascalCase` for types and most functions, `snake_case` for variables and function parameters, trailing underscores for class data members, and `kPascalCase` for constants. Name C++ source files, headers, test files, and Qt-related files in `snake_case`, for example `chat_window.h`, `chat_window.cpp`, `chat_window_test.cpp`, `chat_window.ui`, and `app_resources.qrc`; keep matching header/source basenames aligned. Keep CMake declarative and minimal; add new targets and dependencies in `CMakeLists.txt` rather than hardcoding paths in source files.
 
 ## Testing Guidelines
 
