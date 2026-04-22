@@ -4,6 +4,14 @@
 #include <stdexcept>
 
 namespace ToxCore {
+namespace {
+/**
+ * @brief Convert a single hexadecimal character to its 4-bit value (nibble)
+ * @param c Hexadecimal character ('0'-'9', 'a'-'f', 'A'-'F')
+ * @return 4-bit value corresponding to the hexadecimal character
+ * @throws std::invalid_argument if the character is not a valid hexadecimal
+ * digit
+ */
 uint8_t HexNibble(char c) {
     if (c >= '0' && c <= '9') {
         return static_cast<uint8_t>(c - '0');
@@ -18,6 +26,14 @@ uint8_t HexNibble(char c) {
     throw std::invalid_argument("hex string contains non-hex character");
 }
 
+/**
+ * @brief Decode a fixed-size hexadecimal string into a byte array.
+ * @tparam N Number of bytes to decode.
+ * @param hex Hexadecimal string to decode (must be exactly N*2 characters).
+ * @return std::array<uint8_t, N> containing the decoded bytes.
+ * @throws std::invalid_argument if the string length is incorrect or contains
+ * invalid characters.
+ */
 template <size_t N>
 std::array<uint8_t, N> DecodeHexFixed(std::string_view hex) {
     if (hex.size() != N * 2) {
@@ -33,6 +49,14 @@ std::array<uint8_t, N> DecodeHexFixed(std::string_view hex) {
     return out;
 }
 
+/**
+ * @brief Encodes a byte buffer as an uppercase hexadecimal string.
+ * @param data Pointer to the input byte buffer; the first 'length' bytes are
+ * encoded.
+ * @param length Number of bytes to encode from data.
+ * @return A std::string containing uppercase hexadecimal characters (two
+ * characters per byte). Returns an empty string if length is zero.
+ */
 std::string EncodeHexUpper(const uint8_t* data, size_t length) {
     static constexpr char hex[] = "0123456789ABCDEF";
 
@@ -46,6 +70,30 @@ std::string EncodeHexUpper(const uint8_t* data, size_t length) {
 
     return result;
 }
+
+/**
+ * @brief Decode a hexadecimal string into a byte vector.
+ * @param hex Hexadecimal string to decode.
+ * @param out Vector to store the decoded bytes.
+ * @return True if decoding was successful, false otherwise.
+ */
+bool DecodeHex(std::string_view hex, std::vector<uint8_t>& out) {
+    if (hex.size() % 2 != 0) {
+        return false;  // Hex string must have an even length
+    }
+    out.clear();
+    out.reserve(hex.size() / 2);
+    for (size_t i = 0; i < hex.size(); i += 2) {
+        try {
+            uint8_t byte = (HexNibble(hex[i]) << 4) | HexNibble(hex[i + 1]);
+            out.push_back(byte);
+        } catch (const std::invalid_argument&) {
+            return false;  // Invalid hex character encountered
+        }
+    }
+    return true;
+}
+}  // namespace
 
 void ToxCoreWrapper::InitAv_() {
     TOXAV_ERR_NEW err = TOXAV_ERR_NEW_OK;
