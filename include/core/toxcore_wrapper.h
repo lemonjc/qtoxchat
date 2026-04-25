@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <filesystem>
 #include <functional>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -21,7 +22,7 @@ using FriendMessageCb = std::function<void(
     uint32_t friend_number, TOX_MESSAGE_TYPE type, const std::string& message)>;
 
 // File transfer-related callback type definitions
-using FileReciveCb =
+using FileRecvCb =
     std::function<void(uint32_t friend_number, uint32_t file_number,
                        const std::string& filename, uint64_t filesize)>;
 using FileRecvControlCb = std::function<void(
@@ -29,9 +30,9 @@ using FileRecvControlCb = std::function<void(
 using FileChunkRequestCb =
     std::function<void(uint32_t friend_number, uint32_t file_number,
                        uint64_t position, uint64_t length)>;
-using FileChunkRecvCb =
+using FileRecvChunkCb =
     std::function<void(uint32_t friend_number, uint32_t file_number,
-                       uint64_t position, const std::vector<uint8_t>& data)>;
+                       uint64_t position, const uint8_t* data, size_t length)>;
 
 // Conference-related callback type definitions
 using ConferenceInviteCb =
@@ -58,8 +59,7 @@ using AudioFrameCb = std::function<void(
     uint8_t channels, uint32_t sampling_rate)>;
 using VideoFrameCb =
     std::function<void(uint32_t friend_number, uint16_t width, uint16_t height,
-                       const uint8_t* y, const uint8_t* u, const uint8_t* v,
-                       int32_t ystride, int32_t u_stride, int32_t vstride)>;
+                       const uint8_t* y, const uint8_t* u, const uint8_t* v)>;
 
 // ==================== Options Struct Definition ====================
 
@@ -345,7 +345,7 @@ public:
      * @brief Set callback for incoming file transfers
      * @param cb Callback function to handle incoming file transfers
      */
-    void SetOnFileRecive(FileReciveCb cb);
+    void SetOnFileRecv(FileRecvCb cb);
 
     /**
      * @brief Set callback for file transfer control events (accept, reject,
@@ -364,7 +364,7 @@ public:
      * @brief Set callback for receiving file chunks
      * @param cb Callback function to handle received file chunks
      */
-    void SetOnFileChunkRecv(FileChunkRecvCb cb);
+    void SetOnFileRecvChunk(FileRecvChunkCb cb);
 
     // ==================== Conference Management ====================
 
@@ -396,7 +396,7 @@ public:
      * @param cookie Cookie data for joining the conference
      * @return True if successfully joined, false otherwise
      */
-    bool JoinConference(uint32_t conference_number,
+    bool JoinConference(uint32_t friend_number,
                         const std::vector<uint8_t>& cookie);
 
     // ================= Conference Information Retrieval ===============
@@ -472,7 +472,7 @@ public:
      * @param conference_number Conference number (ID)
      * @param message Message to send
      */
-    void SendConferenceMessage(uint32_t conference_number,
+    bool SendConferenceMessage(uint32_t conference_number,
                                const std::string& message);
 
     // =============== Conference Callback Management ===============
@@ -594,6 +594,12 @@ public:
 
 private:
     // ==================== Private Helper Methods ====================
+
+    /**
+     * @brief Throw if the underlying Tox instance is not available.
+     */
+    void EnsureTox_() const;
+
     /**
      * @brief Initialize ToxAV (audio and video calling module)\n
      *
@@ -627,10 +633,10 @@ private:
                                    void* opaque);
 
     // File transfer-related static callback functions
-    static void OnFileReciveCb_(Tox* tox, Tox_Friend_Number friend_number,
-                                Tox_File_Number file_number, uint32_t kind,
-                                uint64_t file_size, const uint8_t filename[],
-                                size_t filename_length, void* opaque);
+    static void OnFileRecvCb_(Tox* tox, Tox_Friend_Number friend_number,
+                              Tox_File_Number file_number, uint32_t kind,
+                              uint64_t file_size, const uint8_t filename[],
+                              size_t filename_length, void* opaque);
 
     static void OnFileRecvControlCb_(Tox* tox, Tox_Friend_Number friend_number,
                                      Tox_File_Number file_number,
@@ -641,10 +647,10 @@ private:
                                       uint64_t position, size_t length,
                                       void* opaque);
 
-    static void OnFileRecvChunkCb(Tox* tox, Tox_Friend_Number friend_number,
-                                  Tox_File_Number file_number,
-                                  uint64_t position, const uint8_t data[],
-                                  size_t length, void* opaque);
+    static void OnFileRecvChunkCb_(Tox* tox, Tox_Friend_Number friend_number,
+                                   Tox_File_Number file_number,
+                                   uint64_t position, const uint8_t data[],
+                                   size_t length, void* opaque);
 
     // Conference-related static callback functions
     static void OnConferenceInviteCb_(Tox* tox, Tox_Friend_Number friend_number,
@@ -705,10 +711,10 @@ private:
     FriendMessageCb onFriendMessage_{nullptr};
 
     // file transfer-related callbacks
-    FileReciveCb onFileRecive_{nullptr};
+    FileRecvCb onFileRecv_{nullptr};
     FileRecvControlCb onFileRecvControl_{nullptr};
     FileChunkRequestCb onFileChunkRequest_{nullptr};
-    FileRecvControlCb onFileChunkRecv_{nullptr};
+    FileRecvChunkCb onFileRecvChunk_{nullptr};
 
     // conference-related callbacks
     ConferenceInviteCb onConferenceInvite_{nullptr};
