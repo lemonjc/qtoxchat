@@ -1,0 +1,1 @@
+add_subdirectory(toxcore_wrap_cli)
