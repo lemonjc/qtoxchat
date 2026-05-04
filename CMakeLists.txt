@@ -28,10 +28,17 @@ endif()
 
 
 set(CORE_INCLUDE_FILES
-    ${PROJECT_SOURCE_DIR}/include/core/toxcore_wrapper.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/core/toxcore_wrapper.h
 )
 set(CORE_SOURCE_FILES
-    ${PROJECT_SOURCE_DIR}/src/core/toxcore_wrapper.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/toxcore_wrapper.cpp
+)
+
+set(WIDGETS_INCLUDE_FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/widgets/mainwindow.h
+)
+set(WIDGETS_SOURCE_FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/widgets/mainwindow.cpp
 )
 
 add_library(qtoxchat_core STATIC
@@ -40,8 +47,8 @@ add_library(qtoxchat_core STATIC
 )
 
 target_include_directories(qtoxchat_core PUBLIC
-    ${PROJECT_SOURCE_DIR}/include
-    ${PROJECT_SOURCE_DIR}/third_party/c-toxcore
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/third_party/c-toxcore
 )
 
 target_link_libraries(qtoxchat_core
@@ -51,8 +58,14 @@ target_link_libraries(qtoxchat_core
 
 qt_add_executable(${PROJECT_NAME}
     src/main.cpp
+
+    ${WIDGETS_INCLUDE_FILES}
+    ${WIDGETS_SOURCE_FILES}
 )
 
+target_include_directories(${PROJECT_NAME} PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
         Qt6::Widgets
